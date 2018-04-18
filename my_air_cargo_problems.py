@@ -210,13 +210,14 @@ class AirCargoProblem(Problem):
         count = 0
         kb = PropKB()
         kb.tell(decode_state(node.state, self.state_map).pos_sentence())
-        #loop through effects
+        #loop through clauses
         #find needed outcomes to achieve goal and count them
-        print(node)
-        
-        # for action in self.actions_list:
-        #     if action.effect_add in self.goal:
-        #         count += 1
+        for clause in self.goal:
+            if clause not in kb.clauses:
+                count += 1
+        return count
+
+        node.expand(kb)
             
         return count
 
