@@ -83,7 +83,6 @@ class AirCargoProblem(Problem):
 
             for cargo in self.cargos:
                 for plane_1 in self.planes:
-                    
                     for airport in self.airports:
                         precond_pos = [expr("In({}, {})".format(cargo, plane_1)),expr("At({}, {})".format(plane_1, airport)), ]
                         precond_neg = []
@@ -218,7 +217,7 @@ class AirCargoProblem(Problem):
         return count
 
         node.expand(kb)
-            
+
         return count
 
 
