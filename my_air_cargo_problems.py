@@ -64,10 +64,11 @@ class AirCargoProblem(Problem):
             for cargo in self.cargos:
                 for plane_1 in self.planes:
                     for airport in self.airports:
-                        precond_pos = [expr("At({}, {})".format(cargo, airport)), expr("At({}, {})".format(plane_1, airport)), ]
+                        precond_pos = [expr("At({}, {})".format(cargo, airport)),
+                                      expr("At({}, {})".format(plane_1, airport)), ]
                         precond_neg = []
-                        effect_add = [expr("At({}, {})".format(plane_1, airport))]
-                        effect_rem = [expr("Cargo_At({}, {})".format(cargo, airport))]
+                        effect_add = [expr("In({}, {})".format(plane_1, airport))]
+                        effect_rem = [expr("At({}, {})".format(cargo, airport))]
                         load = Action(expr("Load({}, {}, {})".format(cargo, plane_1, airport)),
                                          [precond_pos, precond_neg],
                                          [effect_add, effect_rem])
@@ -84,10 +85,11 @@ class AirCargoProblem(Problem):
             for cargo in self.cargos:
                 for plane_1 in self.planes:
                     for airport in self.airports:
-                        precond_pos = [expr("In({}, {})".format(cargo, plane_1)),expr("At({}, {})".format(plane_1, airport)), ]
+                        precond_pos = [expr("In({}, {})".format(cargo, plane_1)),
+                                      expr("At({}, {})".format(plane_1, airport)), ]
                         precond_neg = []
-                        effect_add = [expr("Cargo_unloaded({}, {})".format(cargo, airport))]
-                        effect_rem = [expr("Cargo_At({}, {})".format(cargo, plane_1))]
+                        effect_add = [expr("At({}, {})".format(cargo, airport))]
+                        effect_rem = [expr("In({}, {})".format(cargo, plane_1))]
                         unload = Action(expr("Unload({}, {}, {})".format(cargo, plane_1, airport)),
                                          [precond_pos, precond_neg],
                                          [effect_add, effect_rem])
