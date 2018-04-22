@@ -64,14 +64,13 @@ class AirCargoProblem(Problem):
             for cargo in self.cargos:
                 for plane_1 in self.planes:
                     for airport in self.airports:
-                        precond_pos = [expr("At({}, {})".format(cargo, airport)),
-                                      expr("At({}, {})".format(plane_1, airport)), ]
+                        precond_pos = [expr("At({}, {})".format(cargo, airport)), expr("At({}, {})".format(plane_1, airport)), ]
                         precond_neg = []
-                        effect_add = [expr("In({}, {})".format(plane_1, airport))]
+                        effect_add = [expr("In({}, {})".format(cargo, plane_1))]
                         effect_rem = [expr("At({}, {})".format(cargo, airport))]
                         load = Action(expr("Load({}, {}, {})".format(cargo, plane_1, airport)),
-                                         [precond_pos, precond_neg],
-                                         [effect_add, effect_rem])
+                                      [precond_pos, precond_neg],
+                                      [effect_add, effect_rem])
                         loads.append(load)
             return loads
 
@@ -85,14 +84,13 @@ class AirCargoProblem(Problem):
             for cargo in self.cargos:
                 for plane_1 in self.planes:
                     for airport in self.airports:
-                        precond_pos = [expr("In({}, {})".format(cargo, plane_1)),
-                                      expr("At({}, {})".format(plane_1, airport)), ]
+                        precond_pos = [expr("In({}, {})".format(cargo, plane_1)), expr("At({}, {})".format(plane_1, airport)), ]
                         precond_neg = []
                         effect_add = [expr("At({}, {})".format(cargo, airport))]
                         effect_rem = [expr("In({}, {})".format(cargo, plane_1))]
                         unload = Action(expr("Unload({}, {}, {})".format(cargo, plane_1, airport)),
-                                         [precond_pos, precond_neg],
-                                         [effect_add, effect_rem])
+                                        [precond_pos, precond_neg],
+                                        [effect_add, effect_rem])
                         unloads.append(unload)
             return unloads
 
@@ -156,17 +154,25 @@ class AirCargoProblem(Problem):
         new_state = FluentState([], [])
         old_state = decode_state(state, self.state_map)
         for fluent in old_state.pos:
-            if fluent not in action.effect_rem:
+            if fluent not in new_state.pos:
                 new_state.pos.append(fluent)
+            if fluent in new_state.neg:
+                new_state.neg.remove(fluent)
+        for fluent_remove in old_state.neg:
+            if fluent_remove in new_state.pos:
+                new_state.pos.remove(fluent_remove)
+            if fluent_remove not in new_state.neg:
+                new_state.neg.append(fluent_remove)
         for fluent in action.effect_add:
             if fluent not in new_state.pos:
                 new_state.pos.append(fluent)
-        for fluent in old_state.neg:
-            if fluent not in action.effect_add:
-                new_state.neg.append(fluent)
-        for fluent in action.effect_rem:
-            if fluent not in new_state.neg:
-                new_state.neg.append(fluent)
+            if fluent in new_state.neg:
+                new_state.neg.remove(fluent)
+        for fluent_remove in action.effect_rem:
+            if fluent_remove in new_state.pos:
+                new_state.pos.remove(fluent_remove)
+            if fluent_remove not in new_state.neg:
+                new_state.neg.append(fluent_remove)
         return encode_state(new_state, self.state_map)
 
     def goal_test(self, state: str) -> bool:
@@ -211,8 +217,8 @@ class AirCargoProblem(Problem):
         count = 0
         kb = PropKB()
         kb.tell(decode_state(node.state, self.state_map).pos_sentence())
-        #loop through clauses
-        #find needed outcomes to achieve goal and count them
+        # loop through clauses
+        # find needed outcomes to achieve goal and count them
         for clause in self.goal:
             if clause not in kb.clauses:
                 count += 1
@@ -293,7 +299,7 @@ def air_cargo_p2() -> AirCargoProblem:
 def air_cargo_p3() -> AirCargoProblem:
     # TODO implement Problem 3 definition
     cargos = ['C1', 'C2', 'C3', 'C4', ]
-    planes = ['P1', 'P2',]
+    planes = ['P1', 'P2', ]
     airports = ['JFK', 'SFO', 'ATL', 'ORD', ]
     pos = [expr('At(C1, SFO)'),
            expr('At(C2, JFK)'),
